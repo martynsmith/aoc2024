@@ -3,9 +3,12 @@
 import sys
 import os
 import httpx
-from datetime import date
+import time
+from datetime import date, datetime
 from bs4 import BeautifulSoup
 from pathlib import Path
+from rich.live import Live
+from rich import print
 
 YEAR = "2024"
 
@@ -16,6 +19,13 @@ if len(sys.argv) > 1:
     day = int(sys.argv[1])
 else:
     day = date.today().day
+
+target_datetime = datetime(int(YEAR), 12, day, 18).replace(microsecond=0)
+
+with Live() as live:
+    while target_datetime >= datetime.now():
+        live.update(f"Waiting for 6pm {target_datetime - datetime.now().replace(microsecond=0)}")
+        time.sleep(1)
 
 input_file = Path(f"input{day:02}.txt")
 sample_file = Path(f"sample{day:02}.txt")
@@ -28,7 +38,8 @@ if not solution_file.exists():
     print(f"creating:", solution_file)
 
     contents = template_file.read_text()
-    contents = contents.replace('DAY_NUMBER', f"{day:02}")
+    contents = contents.replace('ZERO_PADDED_DAY_NUMBER', f"{day:02}")
+    contents = contents.replace('DAY_NUMBER', f"{day}")
     contents = contents.replace('YEAR', YEAR)
     solution_file.write_text(contents)
     solution_file.chmod(0o755)

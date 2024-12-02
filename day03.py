@@ -7,10 +7,10 @@ from pathlib import Path
 import math
 import re
 
-# https://adventofcode.com/YEAR/day/DAY_NUMBER
+# https://adventofcode.com/2024/day/03
 
-INPUT_FILENAME = "inputZERO_PADDED_DAY_NUMBER.txt"
-INPUT_FILENAME = "sampleZERO_PADDED_DAY_NUMBER.txt"
+INPUT_FILENAME = "input03.txt"
+INPUT_FILENAME = "sample03.txt"
 
 # data = Path(INPUT_FILENAME).read_text()
 data = [line.strip() for line in Path(INPUT_FILENAME).read_text().splitlines()]
