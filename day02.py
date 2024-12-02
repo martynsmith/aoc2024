@@ -30,9 +30,7 @@ for line in data:
     if is_safe(line):
         part1 += 1
         part2 += 1
-        continue
-
-    if any(is_safe(line[:i] + line[i+1:]) for i in range(len(line))):
+    elif any(is_safe(line[:i] + line[i+1:]) for i in range(len(line))):
         part2 += 1
 
 
