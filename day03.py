@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# from rich import print
 from pathlib import Path
+from operator import mul
 import re
 
 # https://adventofcode.com/2024/day/03
@@ -18,16 +18,14 @@ for match in re.findall(r"mul\((\d+),(\d+)\)", data):
 
 part2 = 0
 part2_active = True
-for is_mul, x, y, is_do, is_dont in re.findall(
-    r"(mul)\((\d+),(\d+)\)|(do)\(\)|(don\'t)\(\)", data
-):
-    if is_do:
-        part2_active = True
-    if is_dont:
+
+for match in re.findall(r"(mul\(\d+,\d+\)|do\(\)|don\'t\(\))", data):
+    if "don't" in match:
         part2_active = False
-    if is_mul:
-        if part2_active:
-            part2 += int(x) * int(y)
+    elif "do" in match:
+        part2_active = True
+    elif part2_active:
+        part2 += mul(*map(int, re.findall(r"\d+", match)))
 
 print("part1:", part1)
 print("part2:", part2)
