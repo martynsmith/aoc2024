@@ -12,14 +12,13 @@ INPUT_FILENAME = "input03.txt"
 data = Path(INPUT_FILENAME).read_text()
 
 part1 = 0
-for match in re.findall(r"mul\((\d+),(\d+)\)", data):
-    x, y = map(int, match)
-    part1 += x * y
-
 part2 = 0
 part2_active = True
 
 for match in re.findall(r"(mul\(\d+,\d+\)|do\(\)|don\'t\(\))", data):
+    if "mul" in match:
+        part1 += mul(*map(int, re.findall(r"\d+", match)))
+
     if "don't" in match:
         part2_active = False
     elif "do" in match:
