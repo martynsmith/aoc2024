@@ -22,11 +22,6 @@ else:
 
 target_datetime = datetime(int(YEAR), 12, day, 18).replace(microsecond=0)
 
-with Live() as live:
-    while target_datetime >= datetime.now():
-        live.update(f"Waiting for 6pm {target_datetime - datetime.now().replace(microsecond=0)}")
-        time.sleep(1)
-
 input_file = Path(f"input{day:02}.txt")
 sample_file = Path(f"sample{day:02}.txt")
 solution_file = Path(f"day{day:02}.py")
@@ -43,6 +38,12 @@ if not solution_file.exists():
     contents = contents.replace('YEAR', YEAR)
     solution_file.write_text(contents)
     solution_file.chmod(0o755)
+
+with Live() as live:
+    while target_datetime >= datetime.now():
+        live.update(f"Waiting for 6pm {target_datetime - datetime.now().replace(microsecond=0)}")
+        time.sleep(1)
+
 
 if not input_file.exists():
     print(f"fetching input:", input_file)
