@@ -14,40 +14,25 @@ INPUT_FILENAME = "input05.txt"
 # INPUT_FILENAME = "sample05.txt"
 
 rules, updates = Path(INPUT_FILENAME).read_text().split('\n\n')
+rule_pairs = [list(map(int, line.split('|'))) for line in rules.splitlines()]
 
 part1 = 0
 part2 = 0
 
-rule_pairs = [list(map(int, line.split('|'))) for line in rules.splitlines()]
-
-def check(update):
-    for x, y in rule_pairs:
-        if x not in update or y not in update:
-            continue
-        if update.index(x) > update.index(y):
-            return False
-    return True
-
-def do_sort(update):
-    while not check(update):
-        for x, y in rule_pairs:
-            if x not in update or y not in update:
-                continue
-            ix = update.index(x)
-            iy = update.index(y)
-            if ix > iy:
-                update[iy], update[ix] = update[ix], update[iy]
-    return update
 
 for update in updates.splitlines():
     update = list(map(int, update.split(',')))
-
-    if check(update):
+    dg = nx.DiGraph()
+    for x, y in rule_pairs:
+        if x in update and y in update:
+            dg.add_edge(x, y)
+    index_map = {n: i for i, n in enumerate(nx.topological_sort(dg))}
+    update_indexes = [index_map[n] for n in update]
+    if update_indexes == sorted(update_indexes):
         part1 += update[len(update)//2]
     else:
-        update = do_sort(update)
+        update = sorted(update, key=lambda x: index_map[x])
         part2 += update[len(update)//2]
-
 
 print("part1:", part1)
 print("part2:", part2)
