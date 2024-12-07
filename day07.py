@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
-from functools import reduce
-from rich import print
-from itertools import cycle, permutations, combinations, product
+from itertools import product
 from pathlib import Path
-import math
-import re
+
+from rich import print
 
 # https://adventofcode.com/2024/day/7
 
