@@ -52,7 +52,5 @@ for line in data:
             break
 
 
-    # print(result, values)
-
 print("part1:", part1)
 print("part2:", part2)
