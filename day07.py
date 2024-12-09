@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-
-from itertools import product
+from math import log10
 from pathlib import Path
-
 from rich import print
+from operator import add, mul
 
 # https://adventofcode.com/2024/day/7
 
@@ -19,21 +18,20 @@ def check(values, total, target, ops):
     if not values:
         return total == target
 
-    return any([check(values[1:], op(total, values[0]), target, ops) for op in ops])
+    tail = values[1:]
 
-part1_operations = [
-    lambda t, v: t + v,
-    lambda t, v: t * v,
-]
+    return any((check(tail, op(total, values[0]), target, ops) for op in ops))
 
-part2_operations = part1_operations + [
-    lambda t, v: int(str(t) + str(v))
-]
+part1_operations = (add, mul)
+
+part2_operations = part1_operations + (
+    lambda t, v: t * 10 ** len(str(v)) + v,
+)
 
 for line in data:
     result, values = line.split(": ")
     result = int(result)
-    values = list(map(int, values.split()))
+    values = tuple(map(int, values.split()))
 
     if check(values[1:], values[0], result, part1_operations):
         part1 += result
