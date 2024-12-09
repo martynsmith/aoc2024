@@ -10,46 +10,36 @@ from rich import print
 INPUT_FILENAME = "input07.txt"
 # INPUT_FILENAME = "sample07.txt"
 
-# data = Path(INPUT_FILENAME).read_text()
 data = [line.strip() for line in Path(INPUT_FILENAME).read_text().splitlines()]
 
 part1 = 0
 part2 = 0
+
+def check(values, total, target, ops):
+    if not values:
+        return total == target
+
+    return any([check(values[1:], op(total, values[0]), target, ops) for op in ops])
+
+part1_operations = [
+    lambda t, v: t + v,
+    lambda t, v: t * v,
+]
+
+part2_operations = part1_operations + [
+    lambda t, v: int(str(t) + str(v))
+]
 
 for line in data:
     result, values = line.split(": ")
     result = int(result)
     values = list(map(int, values.split()))
 
-    for combo in product("+*", repeat=len(values)-1):
-        total = values[0]
+    if check(values[1:], values[0], result, part1_operations):
+        part1 += result
 
-        for op, value in zip(combo, values[1:]):
-            match op:
-                case "+":
-                    total += value
-                case "*":
-                    total *= value
-
-        if total == result:
-            part1 += total
-            break
-
-    for combo in product("+*|", repeat=len(values)-1):
-        total = values[0]
-
-        for op, value in zip(combo, values[1:]):
-            match op:
-                case "+":
-                    total += value
-                case "*":
-                    total *= value
-                case '|':
-                    total = int(str(total) + str(value))
-
-        if total == result:
-            part2 += total
-            break
+    if check(values[1:], values[0], result, part2_operations):
+        part2 += result
 
 
 print("part1:", part1)
