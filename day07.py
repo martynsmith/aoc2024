@@ -15,6 +15,8 @@ part1 = 0
 part2 = 0
 
 def check(values, total, target, ops):
+    if total > target:
+        return False
     if not values:
         return total == target
 
