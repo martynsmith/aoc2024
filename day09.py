@@ -1,108 +1,109 @@
 #!/usr/bin/env python
-
+from dataclasses import dataclass
+from itertools import zip_longest
 from pathlib import Path
-# from rich import print
+from rich import print
 
 # https://adventofcode.com/2024/day/9
 
 INPUT_FILENAME = "input09.txt"
 # INPUT_FILENAME = "sample09.txt"
 
+@dataclass
+class File:
+    id: int
+    size: int
+
+@dataclass
+class Sector:
+    initial_file: File | None
+    additional_files: list[File]
+    free: int
+
+
 data = list(map(int, Path(INPUT_FILENAME).read_text().strip()))
 
-part1 = []
+def part2():
+    sectors = [
+        Sector(
+            initial_file=File(file_id, file),
+            additional_files=[],
+            free=(free or 0),
+        )
+        for file_id, (file, free) in
+        enumerate(zip_longest(data[::2], data[1::2]))
+    ]
 
-head = 0
-tail = len(data) - 1
-assert tail % 2 == 0
-tail_id = None
-tail_size = 0
+    min_free_index = 0
 
-# print("".join(map(str, data)))
+    for source_index in range(len(sectors)-1, -1, -1):
+        source = sectors[source_index]
+        for target_index in range(min_free_index, source_index):
+            target = sectors[target_index]
+            if target.free >= source.initial_file.size:
+                target.free -= source.initial_file.size
+                target.additional_files.append(source.initial_file)
 
-while head <= tail:
-    if head % 2 == 0:
-        # this is a file
-        # print("file:", data[head])
-        for i in range(data[head]):
-            file_id = head // 2
-            part1.append(file_id)
-    else:
-        # this is blank space
-        # print("blank:", data[head])
-        for i in range(int(data[head])):
-            if tail_size == 0:
-                tail_id = tail // 2
-                tail_size = data[tail]
-                tail -= 2
+                if source.additional_files:
+                    sectors[source_index - 1].free += source.initial_file.size
+                else:
+                    source.free += source.initial_file.size
 
-            part1.append(tail_id)
-            # print(tail_id, end="")
-            tail_size -= 1
-
-        pass
-
-    head += 1
+                source.initial_file = None
+                break
+            if target_index == min_free_index and target.free == 0:
+                min_free_index += 1
 
 
-while tail_size:
-    # print(tail_id, end="")
-    part1.append(tail_id)
-    tail_size -= 1
+    part2 = 0
+    block_position = 0
+    for sector in sectors:
+        if sector.initial_file:
+            sector.additional_files.insert(0, sector.initial_file)
+        for file in sector.additional_files:
+            part2 += file.id * ((file.size * block_position) + (file.size * (file.size - 1)) // 2)
+            block_position += file.size
+        block_position += sector.free
 
-# print("\n")
 
-print("part1:", sum([i * v for i, v in enumerate(part1)]))
+    print('part2:', part2)
 
-head = 0
-tail = len(data) - 1
+def part1():
+    part1 = []
 
-data = [(i // 2 if i % 2 == 0 else 0, v) for i, v in enumerate(data)]
+    head = 0
+    tail = len(data) - 1
+    assert tail % 2 == 0
+    tail_id = None
+    tail_size = 0
 
-# print(data)
-
-def render(data):
-    out = ""
-    for i, count in data:
-        if i == 0 and out:
-            char = "."
+    while head <= tail:
+        if head % 2 == 0:
+            # this is a file
+            for i in range(data[head]):
+                file_id = head // 2
+                part1.append(file_id)
         else:
-            char = str(i)
+            # this is blank space
+            for i in range(int(data[head])):
+                if tail_size == 0:
+                    tail_id = tail // 2
+                    tail_size = data[tail]
+                    tail -= 2
 
-        for _ in range(count):
-            out += char
-    return out
+                part1.append(tail_id)
+                tail_size -= 1
 
-# print(render(data))
+            pass
 
-while tail >= 0:
-    file_id, file_size = data[tail]
+        head += 1
 
-    for i in range(1, tail):
-        potential_id, potential_size = data[i]
-        if potential_id != 0:
-            # only want free space
-            continue
-        if potential_size >= file_size:
-            # print("moving", file_id, "to", i, data[i])
-            data[i:i+1] = [(0, 0), (file_id, file_size), (potential_id, potential_size - file_size)]
 
-            # account for the extra entry
-            tail += 2
+    while tail_size:
+        part1.append(tail_id)
+        tail_size -= 1
 
-            data[tail-1] = (0, data[tail-1][1] + file_size)
-            data[tail] = (0, 0)
-            break
+    print("part1:", sum([i * v for i, v in enumerate(part1)]))
 
-    tail -= 2
-
-part2 = 0
-
-block_position = 0
-for i, count in data:
-    for _ in range(count):
-        part2 += block_position * i
-        block_position += 1
-
-print("part2:", part2)
-print("part2:", part2 == 6286182965311)
+part1()
+part2()
