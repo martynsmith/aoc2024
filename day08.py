@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
-from functools import reduce
 from rich import print
-from itertools import cycle, combinations
+from itertools import combinations
 from pathlib import Path
-import math
-import re
 
-from aoclib import print_grid, Vector
+from aoclib import Vector
 
 # https://adventofcode.com/2024/day/8
 
@@ -29,7 +26,7 @@ for y, line in enumerate(data):
     for x, char in enumerate(line):
         if char == '.':
             continue
-        v =Vector(x, y)
+        v = Vector(x, y)
         by_char.setdefault(char, set())
         by_char[char].add(v)
 
@@ -60,14 +57,6 @@ for char, nodes in by_char.items():
         while new2.x >= tl.x and new2.x < br.x and new2.y >= tl.y and new2.y < br.y:
             part2.add(new2)
             new2 += d2
-
-# printable = {}
-# for char, nodes in by_char.items():
-#     for node in nodes:
-#         printable[node] = char
-# for node in part2:
-#     printable[node] = '#'
-# print_grid(printable, ' ')
 
 print("part1:", len(part1))
 print("part2:", len(part2))
