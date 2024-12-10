@@ -1,7 +1,7 @@
 from __future__ import annotations
 from contextlib import contextmanager
 import time
-from typing import NamedTuple, Iterable
+from typing import NamedTuple, Iterable, Callable
 
 
 @contextmanager
@@ -82,6 +82,18 @@ def print_grid(cells, default_char=' '):
         for x in range(minx, maxx + 1):
             print(cells.get(Vector(x, y), default_char), end="")
         print()
+
+def build_grid[T = str](data: list[str], mutator: Callable[[str], T] | None=None) -> dict[Vector, T]:
+    grid = {}
+
+    if mutator is None:
+        mutator = lambda x: x
+
+    for y, line in enumerate(data):
+        for x, c in enumerate(line):
+            grid[Vector(x, y)] = mutator(c)
+
+    return grid
 
 
 class Vector3(NamedTuple):

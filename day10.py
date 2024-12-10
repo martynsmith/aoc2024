@@ -1,57 +1,40 @@
 #!/usr/bin/env python
 
-from functools import reduce
 from rich import print
-from itertools import cycle
 from pathlib import Path
-import math
-import re
 
-from aoclib import print_grid, Vector
+from aoclib import Vector, build_grid
 
 # https://adventofcode.com/2024/day/10
 
 INPUT_FILENAME = "input10.txt"
 # INPUT_FILENAME = "sample10.txt"
 
-# data = Path(INPUT_FILENAME).read_text()
 data = [line.strip() for line in Path(INPUT_FILENAME).read_text().splitlines()]
 
-part1 = 0
-part2 = 0
+grid = build_grid(data, int)
 
-grid = {}
+def walk(position: Vector, start: Vector | None = None) -> list[tuple[Vector, Vector]]:
+    "Returns a list of tuples of the start/end of each trail"
 
-for y, line in enumerate(data):
-    for x, c in enumerate(line):
-        grid[Vector(x, y)] = int(c)
+    if start is None:
+        start = position
 
-def calc_part1(v) -> set[Vector]:
-    if v in grid and grid[v] == 9:
-        return set([v])
+    if position in grid and grid[position] == 9:
+        return list([(start, position)])
 
-    total = set()
-    for p in v.square_neighbours():
-        if p in grid and grid[p] == grid[v] + 1:
-            total |= calc_part1(p)
+    total = list()
+    for p in position.square_neighbours():
+        if p in grid and grid[p] == grid[position] + 1:
+            total += walk(p, start)
 
     return total
 
-def calc_part2(v) -> int:
-    if v in grid and grid[v] == 9:
-        return 1
-
-    total = 0
-    for p in v.square_neighbours():
-        if p in grid and grid[p] == grid[v] + 1:
-            total += calc_part2(p)
-
-    return total
+trail_ends = []
 
 for v, height in grid.items():
     if height == 0:
-        part1 += len(calc_part1(v))
-        part2 += calc_part2(v)
+        trail_ends += walk(v)
 
-print("part1:", part1)
-print("part2:", part2)
+print("part1:", len(set(trail_ends)))
+print("part2:", len(trail_ends))
