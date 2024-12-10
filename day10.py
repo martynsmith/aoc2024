@@ -53,9 +53,5 @@ for v, height in grid.items():
         part1 += len(calc_part1(v))
         part2 += calc_part2(v)
 
-# print()
-# print_grid(grid)
-# print()
-
 print("part1:", part1)
 print("part2:", part2)
