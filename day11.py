@@ -21,7 +21,8 @@ def blink(n: int, times: int):
 
     digits = len(str(n))
     if digits % 2 == 0:
-        return blink(n // 10 ** (digits // 2), times - 1) + blink(n % 10 ** (digits // 2), times - 1)
+        magnitude = 10 ** (digits // 2)
+        return blink(n // magnitude, times - 1) + blink(n % magnitude, times - 1)
 
     return blink(n * 2024, times - 1)
 
