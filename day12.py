@@ -58,17 +58,11 @@ for c, vectors in islands.items():
             sides += 1
             v, d = edges.pop()
 
-            d1 = d.rotate_right()
-            v1 = v + d1
-            while (v1, d) in edges:
-                edges.remove((v1, d))
-                v1 += d1
-
-            d2 = d.rotate_left()
-            v2 = v + d2
-            while (v2, d) in edges:
-                edges.remove((v2, d))
-                v2 += d2
+            for dx in d.rotate_right(), d.rotate_left():
+                vx = v + dx
+                while (vx, d) in edges:
+                    edges.remove((vx, d))
+                    vx += dx
 
 
         part2 += len(island) * sides
