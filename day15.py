@@ -49,7 +49,7 @@ def get_coords_to_move(position, direction, warehouse) -> set[Vector]:
                 return {position} | moves
             return set()
         case '[' | ']':
-            # part 1 logic
+            # part 2 logic
             m1 = get_coords_to_move(position + direction, direction, warehouse)
             if direction.y:  # only for vertical movement do we need to account for the block width
                 m2 = get_coords_to_move(Vector(position.x + (1 if warehouse[position + direction] == '[' else -1), position.y) + direction, direction, warehouse)
