@@ -9,7 +9,7 @@ from pathlib import Path
 import math
 import re
 
-from aoclib import build_grid, print_grid
+from aoclib import build_grid, print_grid, get_bounds, Vector
 
 # https://adventofcode.com/2024/day/20
 
@@ -22,42 +22,66 @@ data = [line.strip() for line in Path(INPUT_FILENAME).read_text().splitlines()]
 part1 = 0
 part2 = 0
 
-grid = build_grid(data)
+grid: dict[Vector, str | int] = build_grid(data)
 
-g = nx.Graph()
-for v, c in grid.items():
-    if c == 'S':
-        start = v
-    if c == 'E':
-        end = v
+start = next(k for k, v in grid.items() if v == 'S')
+end = next(k for k, v in grid.items() if v == 'E')
 
-    if c == '#':
-        continue
-    else:
-        g.add_node(v)
+print(f"start: {start}, end: {end}")
+
+# print_grid(grid)
+
+grid[start] = 0
+grid[end] = '.'
+
+current_length = 0
+by_length = {0: {start}}
+
+while by_length.get(current_length):
+    for v in by_length[current_length]:
         for n in v.square_neighbours():
-            if grid.get(n) in {'.', 'S', 'E'}:
-                g.add_edge(v, n)
+            if grid.get(n) == '.':
+                grid[n] = current_length + 1
+                by_length.setdefault(current_length + 1, set()).add(n)
+            elif isinstance(grid.get(n), int):
+                length = min(grid[n], current_length + 1)
+                grid[n] = length
+                by_length.setdefault(length, set()).add(n)
 
-base_length = nx.shortest_path_length(g, start, end)
-print(base_length)
+    current_length += 1
 
-part1 = 0
+def cheat(from_vector: Vector, ps: int):
+    cheats = set()
+    for x in range(-ps, ps + 1):
+        for y in range(-ps, ps + 1):
+            if x == 0 and y == 0:
+                continue
+            d = Vector(x, y)
+            m = abs(d.x) + abs(d.y)
+            if m > ps:
+                continue
+            if not isinstance(grid.get(from_vector + d), int):
+                continue
 
+            gain = grid[from_vector + d] - grid[from_vector] - m
+            if gain >= 100:
+                cheats.add((from_vector, from_vector + d))
+
+    return cheats
+
+all_cheats = set()
 for v, c in grid.items():
-    if c != '#':
+    if not isinstance(c, int):
         continue
-    for n in v.square_neighbours():
-        g.add_edge(v, n)
+    all_cheats.update(cheat(v, 2))
 
-    saving = base_length - nx.shortest_path_length(g, start, end)
+print('part1:', len(all_cheats))
 
-    if saving >= 100:
-        part1 += 1
+all_cheats = set()
+for v, c in grid.items():
+    if not isinstance(c, int):
+        continue
+    all_cheats.update(cheat(v, 20))
 
-    for n in v.square_neighbours():
-        g.remove_edge(v, n)
+print('part2:', len(all_cheats))
 
-
-print("part1:", part1)
-# print("part2:", part2)
